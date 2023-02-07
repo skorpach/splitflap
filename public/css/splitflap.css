@@ -1,5 +1,5 @@
 .flip {
-    perspective: 10cm;
+    perspective: 1cm;
     position: relative;
     height: 60px;
     width: 50px;
@@ -9,23 +9,25 @@
 }
 
 .flip > .flap {
+    background: #222;
     height: 48%;
     width: 100%;
+    margin: 0;
+    padding:0;
     position: absolute;
     left: 0;
     transition: transform linear 0.1s;
     backface-visibility: hidden;
+    overflow: hidden;
 }
 
 .flip > .flap.flap-top {
-    background-color: blue;
     transform-origin: bottom;
     transform: none;
     top: 0;
 }
 
 .flip > .flap.flap-bottom {
-    background-color: red;
     transform-origin: top;
     transform: rotateX(180deg);
     bottom: 0;
@@ -37,4 +39,25 @@
 
 .flip > .flap.flap-bottom.is-down {
     transform: none;
+}
+
+.flip > .flap > * {
+    position: absolute;
+    font-family: sans-serif;
+    font-size: 40px;
+    text-align: center;
+    left: 0;
+    width: 100%;
+    margin: 0px;
+    color: white;
+}
+
+.flip > .flap.flap-top > * {
+    bottom: 0;
+    transform: translate(0, 50%);
+}
+
+.flip > .flap.flap-bottom > * {
+    top: 0;
+    transform: translate(0, -50%);
 }
