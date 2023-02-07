@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <link rel="module" href="/js/splitflap.js"/>
+    <link rel="stylesheet" href="/css/splitflap.css"
+  </head>
+  <body>
+    <h1>Here be the demo</h1>
+    <div class="flip" onClick="flip(this)">
+      <div class="flap flap-top">
+	A
+      </div>
+      <div class="flap flap-bottom">
+	A
+      </div>
+    </div>
+    <script>
+      const states = ['up', 'open', 'down'];
+      var cs = 0;
+      
+      function flip(cDisp){
+	  if(++cs >= states.length)
+	      cs = 0;
+
+	  console.log('Moving to', states[cs]);
+	  
+	  let top = cDisp.querySelector('.flap-top'),
+	      bottom = cDisp.querySelector('.flap-bottom');
+
+	  const dc = 'is-down'
+
+	  switch(cs){
+	  case 0:
+	      top.classList.remove(dc);
+	      bottom.classList.remove(dc);
+	      break;
+
+	  case 1:
+	      top.classList.remove(dc);
+	      bottom.classList.add(dc);
+	      break;
+
+	  case 2:
+	      top.classList.add(dc);
+	      bottom.classList.add(dc);
+	      break;
+	  }
+      }
+    </script>
+  </body>
+</html>

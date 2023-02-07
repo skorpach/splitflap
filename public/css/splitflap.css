@@ -1,0 +1,40 @@
+.flip {
+    perspective: 10cm;
+    position: relative;
+    height: 60px;
+    width: 50px;
+    border: solid black 2px;
+    background: #666;
+    user-select: none;
+}
+
+.flip > .flap {
+    height: 48%;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    transition: transform linear 0.1s;
+    backface-visibility: hidden;
+}
+
+.flip > .flap.flap-top {
+    background-color: blue;
+    transform-origin: bottom;
+    transform: none;
+    top: 0;
+}
+
+.flip > .flap.flap-bottom {
+    background-color: red;
+    transform-origin: top;
+    transform: rotateX(180deg);
+    bottom: 0;
+}
+
+.flip > .flap.flap-top.is-down {
+    transform: rotateX(180deg);
+}
+
+.flip > .flap.flap-bottom.is-down {
+    transform: none;
+}
