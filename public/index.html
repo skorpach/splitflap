@@ -2,11 +2,23 @@
 
 <html>
   <head>
-    <link rel="module" href="/js/splitflap.js"/>
     <link rel="stylesheet" href="/css/splitflap.css">
+    <style>
+      div.row {
+	  display: flex;
+	  flex-flow: row nowrap;
+      }
+    </style>
   </head>
   <body>
     <h1>Here be the demo</h1>
+    <div class="row">
+      <split-flap></split-flap>
+      <split-flap></split-flap>
+      <split-flap></split-flap>
+      <split-flap></split-flap>
+    </div>
+    <hr/>
     <div class="flip" onClick="flip(this)">
       <div class="flap flap-top">
 	<div>8</div>
@@ -15,6 +27,7 @@
 	<div>8</div>
       </div>
     </div>
+    <script src="/js/splitflap.js"></script>
     <script>
       const states = ['up', 'open', 'down'];
       var cs = 0;
