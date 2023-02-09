@@ -68,6 +68,9 @@ const flipTemplate = `
 <div class="flip">
 </div>`;
 
+const numbersDrum = [...Array(10).keys()];
+const alphaDrum = ' ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
 window.customElements.define(
     'split-flap',
     class extends HTMLElement {
@@ -79,10 +82,11 @@ window.customElements.define(
 	    
 	    shadow.innerHTML = flipTemplate;
 	    this.container = shadow.querySelector('div');
-	    
-	    this.drum = [...Array(10).keys()].map(x => {
+
+	    this.values = alphaDrum;
+	    this.drum = this.values.map(x => {
 		let el = document.createElement('div');
-		el.innerText = x;
+		el.innerText = x.toString();
 		return el;
 	    });
 
@@ -96,12 +100,16 @@ window.customElements.define(
 	    shadow.addEventListener('click', this.advance.bind(this));
 	}
 
+	get value() {
+	    return this.values[this.pos];
+	}
+	
 	advance(){
-	    if(this.animating)
-		return;
-	    this.animating = true;
-
 	    return new Promise((resolve, reject) => {
+		if(this.animating)
+		    reject();
+		this.animating = true;
+
 		let nPos = this.pos + 1;
 		if(nPos >= this.drum.length)
 		    nPos = 0;
@@ -112,6 +120,7 @@ window.customElements.define(
 		let _onEnd = () => {
 		    if(--awaiting > 0)
 			return;
+		    
 		    this.activeFlap.remove();
 		    this.activeFlap = this.nextFlap;
 		    this.activeFlap.current = true;
@@ -132,13 +141,18 @@ window.customElements.define(
 	    });
 	}
 
-	seek(pos){
+	seek(val){
+	    val = val.toString();
+	    
 	    return new Promise((resolve, reject) => {
-		if(pos >= this.drum.length)
+		if(this.values.find(x => x == val) == -1)
 		    reject('Out of range');
+		
+		if(this.animating)
+		    resolve();
 
 		let i = () => {
-		    if(this.pos != pos)
+		    if(this.value != val)
 			this.advance().then(i);
 		    else
 			resolve();

@@ -4,6 +4,27 @@
   <head>
     <link rel="stylesheet" href="/css/splitflap.css">
     <style>
+      body {
+	  display: flex;
+	  flex-direction: column;
+	  justify-content: center;
+	  align-items: center;
+	  gap: 20px;
+	  background-color: #111;
+	  width: 100%;
+	  height: 100vh;
+      }
+
+      input {
+	  background-color: #444;
+	  border: none;
+      }
+
+      h1 {
+	  color: white;
+	  font-family: sans-serif;
+      }
+
       div.row {
 	  display: flex;
 	  flex-flow: row nowrap;
@@ -11,23 +32,58 @@
     </style>
   </head>
   <body>
-    <h1>Here be the demo</h1>
+    <h1>ARRIVING FROM</h1>
     <div class="row">
       <split-flap></split-flap>
       <split-flap></split-flap>
       <split-flap></split-flap>
       <split-flap></split-flap>
+      <split-flap></split-flap>
+      <split-flap></split-flap>
+      <split-flap></split-flap>
+      <split-flap></split-flap>
+      <split-flap></split-flap>
+      <split-flap></split-flap>
+      <split-flap></split-flap>
+      <split-flap></split-flap>
     </div>
-    <hr/>
-    <div class="flip" onClick="flip(this)">
-      <div class="flap flap-top">
-	<div>8</div>
-      </div>
-      <div class="flap flap-bottom">
-	<div>8</div>
-      </div>
-    </div>
+    <input id="entry" type="text" maxlength="12" size="12"/>
+    <!-- <div class="flip" onClick="flip(this)"> -->
+    <!--   <div class="flap flap-top"> -->
+    <!-- 	<div>8</div> -->
+    <!--   </div> -->
+    <!--   <div class="flap flap-bottom"> -->
+    <!-- 	<div>8</div> -->
+    <!--   </div> -->
+    <!-- </div> -->
     <script src="/js/splitflap.js"></script>
+    <script>
+      document.querySelector('#entry').addEventListener('change', e => {
+	  showValue(e.target.value);
+      });
+      
+      const digits = [...document.querySelectorAll('split-flap')];
+      var count = 1;
+
+      function showValue(value){
+	  // value = ' '.repeat(Math.floor((digits.length - value.length) / 2)) + value;
+	  value = value.toUpperCase().split('');
+	  
+	  for(let d of digits){
+	      let c = value.length ? value.shift() : ' ';
+	      d.seek(c);
+	  }
+      }
+
+      const cities = ['vancouver', 'calgary', 'edmonton', 'saskatoon', 'regina',
+		      'winnipeg', 'ottowa', 'toronto', 'mississauga', 'montreal',
+		      'quebec', 'yellowknife', 'victoria', 'comox', 'london',
+		      'halifax', 'gander']
+
+      setInterval(
+	  () => {showValue(cities[Math.floor(Math.random() * cities.length)])},
+	  7500);
+    </script>
     <script>
       const states = ['up', 'open', 'down'];
       var cs = 0;
