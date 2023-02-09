@@ -14,8 +14,23 @@ class Flap {
 	container.appendChild(this.bottom);
 
 	this.current = false;
+	this._running = 0;
+	
+	this.bottom.addEventListener('transitionend', this._onAnimEnd.bind(this));
+	this.top.addEventListener('transitionend', this._onAnimEnd.bind(this));
+	this.bottom.addEventListener('transitionrun', this._onAnimRun.bind(this));
+	this.top.addEventListener('transitionrun', this._onAnimRun.bind(this)); 
     }
 
+    _onAnimRun(){
+	this._running++;
+    }
+
+    _onAnimEnd(){
+	if(--this._running == 0 && !!this.onAnimationEnd)
+	    this.onAnimationEnd();
+    }
+    
     remove(){
 	this.top.remove();
 	this.bottom.remove();
@@ -51,9 +66,7 @@ class Flap {
 const flipTemplate = `
 <link rel="stylesheet" href="/css/splitflap.css" />
 <div class="flip">
-
-</div>
-`
+</div>`;
 
 window.customElements.define(
     'split-flap',
@@ -95,42 +108,42 @@ window.customElements.define(
 		
 		this.nextFlap = new Flap(this.container, this.drum[nPos]);
 
-		let nComplete = 0;
-		let onAnimComplete = () => {
-		    if(++nComplete < 2)
+		let awaiting = 2;
+		let _onEnd = () => {
+		    if(--awaiting > 0)
 			return;
-		    this.pos = nPos;
+		    this.activeFlap.remove();
 		    this.activeFlap = this.nextFlap;
-		    // TODO: Emit an event that we've advanced one...
+		    this.activeFlap.current = true;
+		    this.nextFlap = null;
+		    this.pos = nPos;
 		    this.animating = false;
-		}
+		    resolve();
+		};
+		
+		this.activeFlap.onAnimationEnd = _onEnd;
+		this.nextFlap.onAnimationEnd = _onEnd;
 
 		// Delay until after the new flap has rendered in state 0
 		setTimeout(() => {
 		    this.activeFlap.state = 2;
 		    this.nextFlap.state = 1;
-
-		    setTimeout(() => {
-			this.activeFlap.remove();
-			this.activeFlap = this.nextFlap;
-			this.activeFlap.current = true;
-			this.nextFlap = null;
-			this.pos = nPos;
-			this.animating = false;
-			resolve();
-		    }, 160);
-		}, 50);
+		}, 10);
 	    });
 	}
 
 	seek(pos){
-	    if(pos >= this.drum.length)
-		throw 'Out of range';
+	    return new Promise((resolve, reject) => {
+		if(pos >= this.drum.length)
+		    reject('Out of range');
 
-	    let i = () => {
-		if(this.pos != pos)
-		    this.advance().then(i);
-	    };
-	    i();
+		let i = () => {
+		    if(this.pos != pos)
+			this.advance().then(i);
+		    else
+			resolve();
+		};
+		i();
+	    });
 	}
     });
