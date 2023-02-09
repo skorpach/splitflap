@@ -4,7 +4,7 @@
     height: 60px;
     width: 50px;
     border: solid black 2px;
-    background: #666;
+    background: #080808;
     user-select: none;
 }
 
@@ -16,7 +16,7 @@
     padding:0;
     position: absolute;
     left: 0;
-    transition: transform linear 0.15s;
+    transition: transform linear 0.125s;
     backface-visibility: hidden;
     overflow: hidden;
 }

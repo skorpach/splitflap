@@ -66,23 +66,34 @@
       var count = 1;
 
       function showValue(value){
-	  // value = ' '.repeat(Math.floor((digits.length - value.length) / 2)) + value;
 	  value = value.toUpperCase().split('');
-	  
-	  for(let d of digits){
+
+	  let toRender = Array(...digits);
+	  let renderChar = () => {
+	      let d = toRender.shift();
+	      if(!d)
+		  return;
 	      let c = value.length ? value.shift() : ' ';
 	      d.seek(c);
+	      setTimeout(renderChar, 150);
 	  }
+	  renderChar();
       }
 
       const cities = ['vancouver', 'calgary', 'edmonton', 'saskatoon', 'regina',
 		      'winnipeg', 'ottowa', 'toronto', 'mississauga', 'montreal',
-		      'quebec', 'yellowknife', 'victoria', 'comox', 'london',
-		      'halifax', 'gander']
+		      'quebec city', 'yellowknife', 'victoria', 'comox', 'london',
+		      'halifax', 'gander'];
+      var citySelected = null;
 
       setInterval(
-	  () => {showValue(cities[Math.floor(Math.random() * cities.length)])},
-	  7500);
+	  () => {
+	      let next;
+	      do
+		  next = cities[Math.floor(Math.random() * cities.length)];
+	      while(next == citySelected);
+	      showValue(citySelected = next);
+	  }, 7500);
     </script>
     <script>
       const states = ['up', 'open', 'down'];

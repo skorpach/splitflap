@@ -15,6 +15,8 @@ class Flap {
 
 	this.current = false;
 	this._running = 0;
+
+	this.eventTarget = new EventTarget();
 	
 	this.bottom.addEventListener('transitionend', this._onAnimEnd.bind(this));
 	this.top.addEventListener('transitionend', this._onAnimEnd.bind(this));
@@ -27,16 +29,18 @@ class Flap {
     }
 
     _onAnimEnd(){
-	if(--this._running == 0 && !!this.onAnimationEnd)
-	    this.onAnimationEnd();
+	if(--this._running == 0)
+	    this.eventTarget.dispatchEvent(new Event('animationend'));
     }
     
     remove(){
 	this.top.remove();
 	this.bottom.remove();
+	this.top = null;
+	this.bottom = null;
     }
     
-    set state(ns) {
+    setState(ns) {
 	const down = 'is-down';
 	
 	if(ns < 2)
@@ -50,6 +54,18 @@ class Flap {
 	    this.bottom.classList.remove(down);
 
 	this._state = ns;
+
+	return Promise.any([
+	    new Promise(resolve => {
+		let l = () => {
+		    resolve();
+		    this.eventTarget.removeEventListener('animationend', l);
+		};
+		this.eventTarget.addEventListener('animationend', l)
+	    }),
+	    new Promise(resolve => {
+		setTimeout(resolve, 2000);
+	    })]);
     }
 
     set current(c){
@@ -91,8 +107,10 @@ window.customElements.define(
 	    });
 
 	    this.pos = 0;
+	    this.targetPos = null;
+	    this.seeker = null;
 	    this.activeFlap = new Flap(this.container, this.drum[this.pos]);
-	    this.activeFlap.state = 1;
+	    this.activeFlap.setState(1);
 	    this.activeFlap.current = true;
 	    this.nextFlap = null;
 	    this.animating = false;
@@ -116,48 +134,46 @@ window.customElements.define(
 		
 		this.nextFlap = new Flap(this.container, this.drum[nPos]);
 
-		let awaiting = 2;
-		let _onEnd = () => {
-		    if(--awaiting > 0)
-			return;
-		    
-		    this.activeFlap.remove();
-		    this.activeFlap = this.nextFlap;
-		    this.activeFlap.current = true;
-		    this.nextFlap = null;
-		    this.pos = nPos;
-		    this.animating = false;
-		    resolve();
-		};
-		
-		this.activeFlap.onAnimationEnd = _onEnd;
-		this.nextFlap.onAnimationEnd = _onEnd;
-
-		// Delay until after the new flap has rendered in state 0
 		setTimeout(() => {
-		    this.activeFlap.state = 2;
-		    this.nextFlap.state = 1;
+		    Promise.all([
+			this.activeFlap.setState(2),
+			this.nextFlap.setState(1)
+		    ]).then(() => {
+			this.activeFlap.remove();
+			this.activeFlap = this.nextFlap;
+			this.activeFlap.current = true;
+			this.nextFlap = null;
+			this.pos = nPos;
+			this.animating = false;
+
+			if(this.seeking)
+			    this.seeking();
+			resolve();
+		    });
 		}, 10);
 	    });
 	}
 
 	seek(val){
 	    val = val.toString();
-	    
-	    return new Promise((resolve, reject) => {
-		if(this.values.find(x => x == val) == -1)
-		    reject('Out of range');
-		
-		if(this.animating)
-		    resolve();
+	    let target = this.values.indexOf(val);
 
-		let i = () => {
-		    if(this.value != val)
-			this.advance().then(i);
-		    else
-			resolve();
-		};
-		i();
-	    });
+	    if(target == -1)
+		throw 'Out of Range';
+
+	    this.targetPos = target;
+
+	    if(this.seeking)
+		return;
+
+	    this.seeking = () => {
+		if(this.pos != this.targetPos)
+		    this.advance();
+		else
+		    this.seeking = null;	
+	    };
+
+	    if(!this.animating)
+		this.seeking();
 	}
     });
